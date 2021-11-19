@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from typing import Optional, Union
+import re
 
 
 def is_name_valid(name):
@@ -64,19 +65,45 @@ class TooManyProductsFoundError:
 class ListServer:
     lst = []
 
-    def get_products(self, n_letters):
-        raise NotImplementedError()
+    def __init__(self, products):
+        self.lst = products
 
-    pass
+    def get_entries(self, n_letters):
+        matching_prod = []
+        for product in self.lst:
+            criteria = "[A-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            m = re.match(criteria, product.name)
+            if m is not None and len(m.group(0)) == len(product.name):
+                matching_prod.append(product)
+            criteria = "[a-z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            m = re.match(criteria, product.name)
+            if m is not None and len(m.group(0)) == len(product.name):
+                matching_prod.append(product)
+        matching_prod.sort(key=lambda x: x.price)
+        return matching_prod
+
 
 
 class MapServer:
     dct = {}
 
-    def get_products(self, n_letters):
-        raise NotImplementedError()
+    def __init__(self, products):
+        for product in products:
+            self.dct[product.name] = product
 
-    pass
+    def get_entries(self, n_letters):
+        matching_prod = []
+        for product in self.dct:
+            criteria = "[A-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            m = re.match(criteria, product)
+            if m is not None and len(m.group(0)) == len(product):
+                matching_prod.append(self.dct[product])
+            criteria = "[a-z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            m = re.match(criteria, product)
+            if m is not None and len(m.group(0)) == len(product):
+                matching_prod.append(self.dct[product])
+        matching_prod.sort(key=lambda x: x.price)
+        return matching_prod
 
 
 class Client:
@@ -84,10 +111,9 @@ class Client:
     def __init__(self, server: Union[MapServer, ListServer]):
         self.client_server = server
 
-
     def get_total_price(self, n_letters: Optional[int]) -> Optional[float]:
-        products = self.client_server.get_products(n_letters)
+        products = self.client_server.get_entries(n_letters)
         total_price = 0
         for prod in products:
-            total_price += prod[1]
+            total_price += prod.price
         return total_price
