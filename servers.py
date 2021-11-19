@@ -71,11 +71,7 @@ class ListServer:
     def get_entries(self, n_letters):
         matching_prod = []
         for product in self.lst:
-            criteria = "[A-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
-            m = re.match(criteria, product.name)
-            if m is not None and len(m.group(0)) == len(product.name):
-                matching_prod.append(product)
-            criteria = "[a-z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            criteria = "[a-zA-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
             m = re.match(criteria, product.name)
             if m is not None and len(m.group(0)) == len(product.name):
                 matching_prod.append(product)
@@ -94,11 +90,7 @@ class MapServer:
     def get_entries(self, n_letters):
         matching_prod = []
         for product in self.dct:
-            criteria = "[A-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
-            m = re.match(criteria, product)
-            if m is not None and len(m.group(0)) == len(product):
-                matching_prod.append(self.dct[product])
-            criteria = "[a-z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
+            criteria = "[a-zA-Z]" + "{" + str(n_letters) + "}[1-9]{2,3}"
             m = re.match(criteria, product)
             if m is not None and len(m.group(0)) == len(product):
                 matching_prod.append(self.dct[product])
