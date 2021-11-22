@@ -52,7 +52,7 @@ class Product:
         return hash((self.name, self.price))
 
 
-class TooManyProductsFoundError:
+class TooManyProductsFoundError(Exception):
     # Reprezentuje wyjątek związany ze znalezieniem zbyt dużej liczby produktów.
     pass
 
@@ -64,7 +64,7 @@ class TooManyProductsFoundError:
 
 class ListServer:
     lst = []
-
+    n_max_returned_entries: int = 4
     def __init__(self, products):
         self.lst = products
 
@@ -75,6 +75,8 @@ class ListServer:
             m = re.match(criteria, product.name)
             if m is not None and len(m.group(0)) == len(product.name):
                 matching_prod.append(product)
+            if len(matching_prod) > ListServer.n_max_returned_entries:
+                raise TooManyProductsFoundError
         matching_prod.sort(key=lambda x: x.price)
         return matching_prod
 
@@ -82,7 +84,7 @@ class ListServer:
 
 class MapServer:
     dct = {}
-
+    n_max_returned_entries: int = 4
     def __init__(self, products):
         for product in products:
             self.dct[product.name] = product
@@ -94,6 +96,8 @@ class MapServer:
             m = re.match(criteria, product)
             if m is not None and len(m.group(0)) == len(product):
                 matching_prod.append(self.dct[product])
+            if len(matching_prod) > MapServer.n_max_returned_entries:
+                raise TooManyProductsFoundError
         matching_prod.sort(key=lambda x: x.price)
         return matching_prod
 
@@ -104,8 +108,14 @@ class Client:
         self.client_server = server
 
     def get_total_price(self, n_letters: Optional[int]) -> Optional[float]:
-        products = self.client_server.get_entries(n_letters)
-        total_price = 0
-        for prod in products:
-            total_price += prod.price
-        return total_price
+        try:
+            products = self.client_server.get_entries(n_letters)
+            total_price = 0
+            for prod in products:
+                total_price += prod.price
+            return total_price
+        except TooManyProductsFoundError:
+            return None
+
+
+
