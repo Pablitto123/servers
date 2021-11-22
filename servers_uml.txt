@@ -1,0 +1,44 @@
+@startuml
+hide empty members
+
+class Product{
++ name: str
++ price : price
++ __init__(self,name: str,price: float)
++ __eq__(self,other)
++ __hash__(self)
+
+}
+
+Product "*" --* "1" ListServer
+Product "*" --* "1" MapServer
+
+' ListServer "1" *-- "*" Product
+' MapServer "1" *-- "*" Product
+
+class ListServer{
++ products : List[Procuct]
++__init__(self,products)
++ get_entries(self,n_letters)
+
+}
+
+
+
+class MapServer{
++products:Dict[str,Product]
++__init__(self,products)
++ get_entries(self,n_letters)
+}
+
+
+class Client{
++__init__(self,server:Union[MapServer,ListServer])
++get_total_price(self,n_letters: Optional[int])-> Optional[float]:
+}
+
+
+
+class TooManyProductsFoundError {
+}
+@enduml
